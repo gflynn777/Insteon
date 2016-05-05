@@ -1,0 +1,81 @@
+//Adding Scene
+Sat 04/30/2016 09:30:29 AM : [test2       ] Start : Adding scene to ISY
+Sat 04/30/2016 09:30:29 AM : [test2       ] Finish : Adding scene to ISY was Successful
+
+//Adding Lamp to Scene
+Fri 04/29/2016 09:32:01 PM : [Main Lamp] Start : Adding to scene 'Test_Scene'
+Fri 04/29/2016 09:32:01 PM : [Main Lamp] Making 'Test_Scene' a Controller
+Fri 04/29/2016 09:32:01 PM : [MNG-LNK-RSP ] 02 6F 40 E2 14 18 97 52 01 0E 3B 06 
+Fri 04/29/2016 09:32:01 PM : [18 97 52 1  ] Link   12 : 0F98 [A21430DBD6FF1F01] Saving  [A21430DBD6FF1F01]
+Fri 04/29/2016 09:32:01 PM : [Main Lamp] Finish : Adding to scene 'Test_Scene' was Successful
+
+//Adding Switch to Scene
+Fri 04/29/2016 09:54:15 PM : [Bedside Switch - D] Start : Adding to scene 'Test_Scene'
+Fri 04/29/2016 09:54:15 PM : [Bedside Switch - D] Making 'Main Lamp' a Responder		<Type><Grp#><DID><
+Fri 04/29/2016 09:54:15 PM : [1C 4E 32 4  ] Link    7 : 0FC0 [E204189752010004] Saving  [E204 18.97.52 010004] //The devices are written on eachother's dbs
+Fri 04/29/2016 09:54:15 PM : [18 97 52 1  ] Link   13 : 0F90 [A2041C4E32FF1F01] Saving  [A204 1C.4E.32 FF1F01]
+Fri 04/29/2016 09:54:15 PM : [Bedside Switch - D] Finish : Adding to scene 'Test_Scene' was Successful
+
+ISY PLM: 	30.DB.D6
+Heater 		11.ED.75
+Main Lamp 	18.97.52 
+Laptop		19.81.A1
+
+Process: 
+ - Scene gets added to Isy. No commands are sent.
+ - A device is added to the scene and the scene is made a "controller."
+ 	- 02 6F 40 E2 1A 11.ED.75 02 0C 38 06 (Heater added to scene: test3)
+ 	- 02 6F 40 E2 14 18.97.52 01 0E 3B 06 (Comparison: adding Main Lamp to scene: Test_Scene)
+ 	
+A2 = Responder?
+E2 = Controller?
+
+Main Lamp ALDB Record for Bedside Switch:
+01 01 <Memory Address:0F B7> <U00> <A2=Controller> <Btn02> <1C.4E.32> FF 1F 01 <U00>
+  -Btn = Group
+  -U=unused
+  -To Overwrite: 02 62 18.97.52 1F 2F 00 00 02 0F F7 08 (eight bytes of new link table data) 00
+  		-The 02 at D10 means its a write
+  		-The 08 following means you will write 8 bytes
+  		-8f is the last address on the main lamp. I overwrote whatever was at 9f. ooops
+  		- My overwrite command: 02 62 18 97 52 1F 2F 00 00 02 0F 9F 08 A2 03 3E D0 8B FF 1F 01 00 
+  		
+  -Query Specific memory address:
+  		02 62 3E D0 8B 1F 2F 00 00 00 0F FF 01 00 00 00 00 00 00 00 00 00
+  		
+ 								02 62 3e d0 8b 1f 2f 00 00 02 0f e7 08 e2 03 18 97 52 00 00 da 00
+CheckSum
+ - Starts at 2F (cmd1)
+ - Formula: ((Not(sum of cmd1..d13)) + 1) and 255
+ 
+S: 0x02 0x6F
+<Control Flags>
+<ALL-Link Record Flags>
+<ALL-Link Group>
+<Device_ID>
+<Link Data 1> <Link Data 2> <Link Data 3> 
+	
+R: 0x02 0x6F
+<Control Flags>
+<ALL-Link Record Flags>
+<ALL-Link Group>
+<Device_ID>
+<Link Data 1> <Link Data 2> <Link Data 3>
+<0x06> 
+
+\w(\s|[a-z]|[1-9])+\b\s2f\s00\b
+
+Sat 04/30/2016 06:46:32 PM : [Bedside Switch - D] Start : Adding to scene 'test1'
+Sat 04/30/2016 06:46:32 PM : [Bedside Switch - D] Finish : Adding to scene 'test1' was Successful
+Sat 04/30/2016 06:46:32 PM : [All         ] Writing 9 bytes to devices
+Sat 04/30/2016 06:46:54 PM : [2E 97 CF 1  ] Link    5 : 0FD0 [E202189752010002] Writing [E202189752010002]
+Sat 04/30/2016 06:47:32 PM : [Main Lamp] Start : Adding to scene 'test1'
+Sat 04/30/2016 06:47:32 PM : [Main Lamp] Making 'test1' a Controller
+Sat 04/30/2016 06:47:32 PM : [Main Lamp] Making 'Bedside Switch - D' a Controller
+Sat 04/30/2016 06:47:32 PM : [Main Lamp] Finish : Adding to scene 'test1' was Successful
+Sat 04/30/2016 06:47:32 PM : [All         ] Writing 33 bytes to devices
+Sat 04/30/2016 06:47:54 PM : [1C 4E 32 1  ] Link    7 : 0FC0 [E204189752010004] Writing [E204189752010004]
+Sat 04/30/2016 06:47:55 PM : [2E 97 CF 1  ] Link    5 : 0FD0 [E202189752010002] Writing [E202189752010002]
+Sat 04/30/2016 06:48:17 PM : [18 97 52 1  ] Link   12 : 0F98 [A21530DBD6FF1F01] Writing [A21530DBD6FF1F01]
+Sat 04/30/2016 06:48:25 PM : [PLM         ] Group  21 : Writing Controller Link matching [18 97 52 1  ] Link   12 : 0F98 [A21530DBD6FF1F01]
+Sat 04/30/2016 06:48:26 PM : [18 97 52 1  ] Link   13 : 0F90 [A2041C4E32FF1F01] Writing [A2041C4E32FF1F01]
