@@ -12,7 +12,7 @@ import serial, binascii
 0x62 - Get Next All-link record
 """
 from _overlapped import NULL
-from Util import SerialInstance
+from Util import SerialInstance, Util
 
 class Command:
     """Holds a single Insteon Command""" #Ref'd by Command.__doc__
@@ -151,27 +151,6 @@ class Command:
         for _ in range(9):
             msg.append(0x00)
         Command.sendMsg(msg)
-        
-    @staticmethod
-    def addToAldb(device, deviceTolink, groupNum):
-        msg = bytearray([0x02, 0x62])
-        msg.extend(device)
-        msg.extend([0x1F, 0x2f, 0x00, 0x00, 0x00, 0x02])
-        msg.extend(device.confirmFreeMem())
-        msg.append(0x08)
-        if device.isController:
-            msg.append(0xE2)
-        else:
-            msg.append(0xA2)
-        msg.append(groupNum)
-        msg.extend(deviceTolink.deviceId)
-        #Device Data - based on other aldb data
-        msg.append(device.data1)
-        msg.append(device.data2)
-        if device.data3 == 0xbad: #Code used for same as groupNum
-            msg.append(groupNum)
-        else:
-            msg.append(device.data3)
     
         
         

@@ -16,13 +16,15 @@ def main():
     #Shutdown Hook
     atexit.register(Util.save_obj, devices, filename)
     
+    #devices['189752'].addLinkToAldb(devices['3ED08B'], 0x01)
+    #devices['3ED08b'].addLinkToAldb(devices['189752'], 0x01)
+        
+    
     #addDevice('265A46', devices)
     for key, d in devices.items():
         d.printAldb()
     print('Device Total: %d' % len(devices))
     
-    print('%0x' %devices['1C4E32'].getMostCommonHex(Device.DEV_DATA_3))
-
 def addDevice(name, devices):
     print(Command.bToS(binascii.unhexlify(name)))
     devices[name] = Device(name)

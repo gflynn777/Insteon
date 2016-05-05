@@ -68,7 +68,7 @@ class Device:
                         print("address Decremented")
                         break
             if re.search(r'(\w)+0(0|1)0000000000000000(\w\w){0,1}\b', Command.bToS(i)):
-                print("Found blank address: 0x0F%s" % startAddress)
+                print("Found blank address: %02x" % startAddress)
                 return bytearray([i[13], i[14]])
     
     def confirmFreeMem(self):
@@ -84,10 +84,36 @@ class Device:
         for idx, address in enumerate(self.aldb):
             elements.append(address[position])
             equalsGroupNum.append(address[position] == address[17] and position == Device.DEV_DATA_3)
+            if position == Device.DEV_END and address[position] != 0x00:
+                return 0xbad
             
-        #The below method returns true if true is the most common
+        #The below method returns true if true is the most common value
         if Util.most_common(equalsGroupNum):
             return 0xbad
         return Util.most_common(elements)
-        
+                
+    def addLinkToAldb(self, deviceTolink, groupNum):
+        msg = bytearray([0x02, 0x62])
+        msg.extend(self.deviceId)
+        msg.extend([0x1F, 0x2f, 0x00, 0x00, 0x00, 0x02])
+        msg.extend(self.confirmFreeMem())
+        msg.append(0x08)
+        if True: #self.isController:
+            msg.append(0xE2)
+        else:
+            msg.append(0xA2)
+        msg.append(groupNum)
+        msg.extend(deviceTolink.deviceId)
+        #Device Data - based on other aldb data
+        msg.append(self.data1)
+        msg.append(self.data2)
+        if self.data3 == 0xbad: #Code used for same as groupNum
+            msg.append(groupNum)
+        else:
+            msg.append(self.data3)
+        if self.data4 == 0xbad: #Must be a checksum
+            msg.append(Util.getChecksum(msg))
+        else:
+            msg.append(self.data4)
+        print('ALDB Add: %s' % Command.spaceOut(Command.bToS(msg)))
     

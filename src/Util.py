@@ -18,6 +18,16 @@ class Util:
     @staticmethod
     def most_common(lst):
         return max(set(lst), key=lst.count)
+    
+    @staticmethod
+    def getChecksum(address):
+        total = 0x00
+        for i in range(6, len(address)):
+            total += address[i]
+        
+        total = (total ^ 0xFF) + 1
+        total = total & 0xFF
+        return total
 
 #Not Used
 class Singleton():
