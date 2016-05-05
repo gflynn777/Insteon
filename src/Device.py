@@ -16,10 +16,14 @@ class Device:
     DEV_END = 24
     
     def __init__(self, name):
-        self.name = name
+        self.name = name.upper()
         self.deviceId = binascii.unhexlify(name)
         self.aldb = []
         self.freeAldb = self.traverseAldb(Device.FIRST_ALDB_ADDRESS)
+        self.setDataBytes()
+        self.links = []
+        
+    def setDataBytes(self):
         self.data1 = self.getMostCommonHex(Device.DEV_DATA_1)
         self.data2 = self.getMostCommonHex(Device.DEV_DATA_2)
         self.data3 = self.getMostCommonHex(Device.DEV_DATA_3)
@@ -33,12 +37,6 @@ class Device:
         print('Device: %s' % self.name)
         for x in range(len(self.aldb)):
             print('%d: %s' % (x, Command.spaceOut(Command.bToS(self.aldb[x]))))
-    
-    @staticmethod
-    def putDevice(msg, address):
-        msg.append(address[0])
-        msg.append(address[1])
-        msg.append(address[2])
         
     def traverseAldb(self, startAddress):
         
@@ -55,7 +53,7 @@ class Device:
                 continue #This makes it stop here and try again
                 
             elif re.search(r'(\w)+(06)\b', Command.bToS(i)):
-                for x in range(50):
+                for _ in range(50):
                     SerialInstance().ser.flushInput()
                     SerialInstance().ser.flushOutput()
                     i = SerialInstance().ser.readline()
@@ -70,6 +68,11 @@ class Device:
             if re.search(r'(\w)+0(0|1)0000000000000000(\w\w){0,1}\b', Command.bToS(i)):
                 print("Found blank address: %02x" % startAddress)
                 return bytearray([i[13], i[14]])
+            
+    def refreshAldb(self):
+        self.aldb = []
+        self.freeAldb = self.traverseAldb(Device.FIRST_ALDB_ADDRESS)
+        self.setDataBytes()
     
     def confirmFreeMem(self):
         nextFree = self.traverseAldb(self.freeAldb[1])
@@ -81,7 +84,7 @@ class Device:
         #Position should be either 22, 23, 24
         equalsGroupNum = [] #Dev_Data_3 sometimes equals the group number.
         elements = []
-        for idx, address in enumerate(self.aldb):
+        for _, address in enumerate(self.aldb):
             elements.append(address[position])
             equalsGroupNum.append(address[position] == address[17] and position == Device.DEV_DATA_3)
             if position == Device.DEV_END and address[position] != 0x00:
@@ -116,4 +119,45 @@ class Device:
         else:
             msg.append(self.data4)
         print('ALDB Add: %s' % Command.spaceOut(Command.bToS(msg)))
+        
+    def addDeviceLink(self):
+        self.links.append
+        
+class Link:
+    CONTROLLER = 0
+    RESPONDER = 1
     
+    def __init__(self, fromDev, toDev, devType, group):
+        self.fromDev = fromDev
+        self.toDev = toDev
+        self.group = group
+        self.devType = devType
+        if devType == Link.CONTROLLER:
+            self.name = fromDev.name +" is controller for "+ Command.bToS(toDev)
+        else:
+            self.name = fromDev.name +" is a responder to "+ Command.bToS(toDev) +" Group: "+ group
+            
+class Scene:
+    
+    def __init__(self, name):
+        self.name = name
+        self.responders = []
+        self.controllers = []
+        self.controllerGroupLookup = {}
+        
+    def addResponder(self, device):
+        self.responders.append(device)
+        for ctrlDevice in self.controllers:
+            device.addLinkToAldb(ctrlDevice, self.controllerGroupLookup[ctrlDevice])
+            ctrlDevice.addLinkToAldb(device, self.controllerGroupLookup[ctrlDevice])
+        
+    def addController(self, device, groupNum):
+        self.controllers.append(device)
+        self.controllerGroupLookup[device] = groupNum
+        for respDevice in self.responders:
+            device.addLinkToAldb(respDevice, groupNum)
+            respDevice.addLinkToAldb(device, groupNum)
+        
+        
+        
+        

@@ -6,7 +6,7 @@ class Util:
     def save_obj(obj, filename):
         if len(obj) == 0:
             print("ERROR! Not saving empty object!")
-            return
+            #return
         print("Writing to file.........")
         with open(filename, 'wb') as output:
             pickle.dump(obj, output, -1)

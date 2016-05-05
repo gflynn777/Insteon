@@ -1,5 +1,3 @@
-import serial, binascii
-
 """
 0x02 - Start of IM cmd
 0x06 - ACK
@@ -11,8 +9,8 @@ import serial, binascii
 0x69 - Get first All-link record
 0x62 - Get Next All-link record
 """
-from _overlapped import NULL
-from Util import SerialInstance, Util
+import binascii
+from Util import SerialInstance
 
 class Command:
     """Holds a single Insteon Command""" #Ref'd by Command.__doc__
@@ -73,9 +71,8 @@ class Command:
     
     @staticmethod
     def bToS(byteString):
-        if byteString == NULL:
-            return
-        return binascii.hexlify(byteString).decode('UTF-8')    
+        return binascii.hexlify(byteString).decode('UTF-8') 
+       
     @staticmethod
     def spaceOut(string):
         spacedStr = []
@@ -96,23 +93,23 @@ class Command:
     
     @staticmethod
     def sendCommand(device, cmd):
-        message = bytearray()
-        message.append(0x02) # INSTEON_PLM_START
-        message.append(0x62) # INSTEON_STANDARD_MESSAGE
-        message.extend(device)
-        message.append(0x0F) # INSTEON_MESSAGE_FLAG
-        message.append(cmd) # 0x12 = FAST ON, 0x14 = FAST OFF, 0x19 = STATUS
-        message.append(0xFF) # 0x00 = 0%, 0xFF = 100%
-        Command.sendMsg(message)
+        msg = bytearray()
+        msg.append(0x02) # INSTEON_PLM_START
+        msg.append(0x62) # INSTEON_STANDARD_MESSAGE
+        msg.extend(device)
+        msg.append(0x0F) # INSTEON_MESSAGE_FLAG
+        msg.append(cmd) # 0x12 = FAST ON, 0x14 = FAST OFF, 0x19 = STATUS
+        msg.append(0xFF) # 0x00 = 0%, 0xFF = 100%
+        Command.sendMsg(msg)
         
     @staticmethod
     def linkup():
-        message = bytearray()
-        message.append(0x02) # INSTEON_PLM_START
-        message.append(0x64) # INSTEON Start ALL-LINKING Command
-        message.append(0x01) # Link Code - Links IM as master
-        message.append(0x00) # All-Link Group
-        Command.sendMsg(message)
+        msg = bytearray()
+        msg.append(0x02) # INSTEON_PLM_START
+        msg.append(0x64) # INSTEON Start ALL-LINKING Command
+        msg.append(0x01) # Link Code - Links IM as master
+        msg.append(0x00) # All-Link Group
+        Command.sendMsg(msg)
         
         
     @staticmethod
@@ -151,6 +148,12 @@ class Command:
         for _ in range(9):
             msg.append(0x00)
         Command.sendMsg(msg)
+        
+    @staticmethod
+    def groupRemoteLinc(device):
+        msg = bytearray([0x02, 0x62])
+        msg.extend(device)
+        #Flags, Cmd1, Cmd2
+        msg.extend([0x00, 0x0F, 0x00])
+        
     
-        
-        

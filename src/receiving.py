@@ -4,30 +4,37 @@
 import binascii, atexit
 from time import sleep
 from Command import Command
-from Device import Device
+from Device import Device, Scene
 from Util import SerialInstance, Util
 
 filename = 'deviceData.dat'
+filename2 = 'wDeviceData.dat'
 
 
 def main():
+    scenes = {}
     #Load Devices
     devices = Util.load_obj(filename)
+    scenes = Util.load_obj(filename2)
     #Shutdown Hook
-    atexit.register(Util.save_obj, devices, filename)
+    #atexit.register(Util.save_obj, devices, filename)
     
     #devices['189752'].addLinkToAldb(devices['3ED08B'], 0x01)
     #devices['3ED08b'].addLinkToAldb(devices['189752'], 0x01)
         
+    scenes['All Lights'] = Scene('All Lights')
+    Util.save_obj( scenes, filename2)
+    Util.save_obj(devices, filename2)
     
     #addDevice('265A46', devices)
-    for key, d in devices.items():
+    for _, d in devices.items():
         d.printAldb()
     print('Device Total: %d' % len(devices))
     
 def addDevice(name, devices):
     print(Command.bToS(binascii.unhexlify(name)))
     devices[name] = Device(name)
+    
     
 
 def startListening():
