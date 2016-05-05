@@ -1,18 +1,22 @@
-import pickle, serial
+import pickle, serial, os.path
 
 class Util:
     
     @staticmethod
-    def save_obj(obj, filename):
-        if len(obj) == 0:
+    def save_obj(obj1, obj2, filename):
+        objList = [obj1, obj2]
+        if len(obj1) == 0 or len(obj2) == 0:
             print("ERROR! Not saving empty object!")
             #return
         print("Writing to file.........")
         with open(filename, 'wb') as output:
-            pickle.dump(obj, output, -1)
+            pickle.dump(objList, output, -1)
     
     @staticmethod
     def load_obj(filename):
+        if not(os.path.isfile(filename)):
+            print('File: %s not found.' % filename)
+            return {}
         return pickle.load(open(filename, 'rb'))
     
     @staticmethod
